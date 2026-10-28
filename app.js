@@ -1,5 +1,5 @@
 import { course, courseMeta } from './courseData.js';
-import { renderVisuals as renderAlgorithmVisuals } from './visualizations.js';
+import { getTraceSteps, renderInlineVisual, renderVisuals as renderAlgorithmVisuals } from './visualizations.js';
 
 const app = document.querySelector('#app-main');
 const nav = document.querySelector('#module-nav');
@@ -13,9 +13,12 @@ const savedRead = JSON.parse(localStorage.getItem(readKey) || '[]');
 const state = {
   active: null,
   cheat: false,
+  readingMode: localStorage.getItem('algo-reading-mode-v1') === 'true',
+  readingSize: Math.min(1.3, Math.max(1, Number(localStorage.getItem('algo-reading-size-v1')) || 1)),
+  activeSection: 0,
   read: new Set(savedRead),
   theme: localStorage.getItem(themeKey) || 'light',
-  ui: { coffeeStep: 0, characteristic: 'input', scenario: 'nasi', decompositionStep: 0, pillar: 'decomposition', stage: 0, dataType: 'int', variableName: 'umur', variableValue: '20', variableNext: '21', left: 7, right: 2, operator: '%', operatorFamily: 'arithmetic', example: 'sequence', flowNode: 0, symbol: 'terminator', price: 200000, quantity: 2, discount: 10, ipoRun: false, ipoStage: 0, pblStage: 0, ifValue: 75, ifThreshold: 60, condition: 'simple', boolA: true, boolB: false, boolOperator: 'and', branchType: 'elif', branchTotal: 250000, member: true, gradeValue: 76 },
+  ui: { coffeeStep: 0, characteristic: 'input', scenario: 'nasi', decompositionStep: 0, pillar: 'decomposition', stage: 0, dataType: 'int', variableName: 'umur', variableValue: '20', variableNext: '21', left: 7, right: 2, operator: '%', operatorFamily: 'arithmetic', example: 'sequence', flowNode: 0, symbol: 'terminator', price: 200000, quantity: 2, discount: 10, ipoRun: false, ipoStage: 0, pblStage: 0, ifValue: 75, ifThreshold: 60, condition: 'simple', boolA: true, boolB: false, boolOperator: 'and', branchType: 'elif', branchTotal: 250000, member: true, gradeValue: 76, traceStep: 0 },
   flash: {}, quiz: {}, searchItems: [], searchCursor: -1,
 };
 
@@ -95,17 +98,23 @@ function renderModule() {
   const percent = progressFor(mod);
   const quick = state.cheat;
   app.innerHTML = `
-    <article class="module-page accent-${mod.accent}">
+    <article class="module-page accent-${mod.accent} ${state.readingMode ? 'reading-mode' : ''}">
       <header class="module-head">
         <div class="module-head-top"><div class="eyebrow">PERTEMUAN ${mod.no} <span>·</span> ${mod.sections.length} TOPIK</div><div class="visual-label">${percent}% SELESAI DIBACA</div></div>
         <h1>${esc(mod.title)}</h1><p class="module-outcome"><b>CAPAIAN</b><span>${esc(mod.outcome)}</span></p><div class="module-source">${esc(mod.source)}</div>
       </header>
-      <div class="module-toolbar"><div class="view-toggle" role="group" aria-label="Tampilan materi"><button class="${!quick ? 'active' : ''}" data-action="view-full">Materi lengkap</button><button class="${quick ? 'active' : ''}" data-action="view-cheat">Ringkasan ujian</button></div><button class="complete-button ${percent === 100 ? 'done' : ''}" data-action="complete-module" data-module="${mod.id}">${icon('check')}<span>${percent === 100 ? 'Tandai belum selesai' : 'Tandai modul selesai'}</span></button></div>
-      ${quick ? `<section class="quick-sheet"><div class="quick-sheet-title"><div class="mono-label">RINGKASAN CEPAT</div><h2>Yang perlu diingat.</h2><p>Inti materi ${mod.no} dalam poin ringkas.</p></div><ul class="quick-list">${mod.summary.map(item => `<li>${esc(item)}</li>`).join('')}</ul></section>` : `<section class="module-visuals" id="module-visuals"><div class="section-kicker">VISUALISASI & EKSPLORASI</div>${renderVisuals(mod)}</section>
+      <div class="module-toolbar"><div class="view-toggle" role="group" aria-label="Tampilan materi"><button class="${!quick ? 'active' : ''}" data-action="view-full">Materi lengkap</button><button class="${quick ? 'active' : ''}" data-action="view-cheat">Ringkasan ujian</button></div><div class="module-toolbar-tools"><div class="reading-controls" role="group" aria-label="Kontrol keterbacaan"><button class="reading-size-button" data-action="reading-size-down" aria-label="Kecilkan teks" ${state.readingSize <= 1 ? 'disabled' : ''}>A−</button><span class="reading-size-label">${Math.round(state.readingSize * 100)}%</span><button class="reading-size-button" data-action="reading-size-up" aria-label="Besarkan teks" ${state.readingSize >= 1.3 ? 'disabled' : ''}>A+</button><button class="focus-mode-button ${state.readingMode ? 'active' : ''}" data-action="reading-mode" aria-pressed="${state.readingMode}">Baca fokus</button></div><button class="complete-button ${percent === 100 ? 'done' : ''}" data-action="complete-module" data-module="${mod.id}">${icon('check')}<span>${percent === 100 ? 'Tandai belum selesai' : 'Tandai modul selesai'}</span></button></div></div>
+      ${quick ? `<section class="quick-sheet"><div class="quick-sheet-title"><div class="mono-label">RINGKASAN CEPAT</div><h2>Yang perlu diingat.</h2><p>Inti materi ${mod.no} dalam poin ringkas.</p></div><ul class="quick-list">${mod.summary.map(item => `<li>${esc(item)}</li>`).join('')}</ul></section>` : `${renderSectionNav(mod)}<section class="module-visuals" id="module-visuals"><div class="section-kicker">VISUALISASI & EKSPLORASI</div><div class="visual-reading-key" aria-label="Kunci membaca diagram"><span><i class="legend-dot input"></i>Masukan</span><span><i class="legend-dot process"></i>Proses</span><span><i class="legend-dot decision"></i>Keputusan</span><span><i class="legend-dot output"></i>Hasil</span><span class="key-arrow">→ urutan alur</span></div>${renderVisuals(mod)}</section>
       <section class="reading-content" aria-label="Materi lengkap">${mod.sections.map((section, i) => renderSection(mod, section, i)).join('')}</section>
       ${mod.references?.length ? `<details class="references"><summary>Rujukan materi · ${mod.references.length} sumber</summary><ol>${mod.references.map(item => `<li>${esc(item)}</li>`).join('')}</ol></details>` : ''}
-      ${renderRecall(mod)}`}
+        ${renderRecall(mod)}`}
     </article>`;
+  app.style.setProperty('--reading-scale', state.readingSize);
+  setupSectionNavigation();
+}
+
+function renderSectionNav(mod) {
+  return `<nav class="section-navigator" aria-label="Navigasi topik dalam modul"><div class="section-nav-top"><span class="mono-label">JALUR MATERI</span><span class="section-nav-position" id="section-nav-position">01 / ${String(mod.sections.length).padStart(2, '0')}</span></div><div class="section-nav-items">${mod.sections.map((section, i) => `<button class="section-nav-item ${i === state.activeSection ? 'active' : ''} ${state.read.has(`${mod.id}:${i}`) ? 'done' : ''}" data-action="jump-section" data-index="${i}" aria-current="${i === state.activeSection ? 'location' : 'false'}"><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(section.title)}</strong><i aria-hidden="true">${state.read.has(`${mod.id}:${i}`) ? '✓' : ''}</i></button>`).join('')}</div><div class="section-progress-track" role="progressbar" aria-label="Progres membaca modul" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="section-progress-fill"></span></div></nav>`;
 }
 
 function renderSection(mod, section, i) {
@@ -114,14 +123,67 @@ function renderSection(mod, section, i) {
   return `<section class="content-section" id="${mod.id}-section-${i}">
     <header class="content-section-head"><div><span class="section-number">${mod.no}.${String(i + 1).padStart(2, '0')}</span><h2>${esc(section.title)}</h2></div><span class="slides">SLIDE ${esc(section.slides)}</span></header>
     <p class="section-intro">${esc(section.intro)}</p>
+    ${renderInlineVisual(mod, i)}
     <div class="concept-list">${section.concepts.map(concept => `<div class="concept-item"><div class="concept-title"><h3>${esc(concept.name)}</h3><span>Konsep inti</span></div><div class="concept-body">${[
       ['Definisi inti', concept.definition, ''], ['Cara kerja / mekanisme', concept.mechanism, ''], ['Contoh nyata', concept.example, ''], ['Poin kunci ujian', concept.takeaway, 'takeaway']
     ].map(([label, text, cls]) => `<div class="concept-detail ${cls}"><strong>${label}</strong><p>${esc(text)}</p></div>`).join('')}</div></div>`).join('')}</div>
-    ${section.matrix ? `<div class="table-scroll"><table class="compare-table"><thead><tr><th>Dimensi</th><th>Bisnis konvensional</th><th>Bisnis digital</th></tr></thead><tbody>${section.matrix.map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}
     ${section.exercise ? `<div class="section-exercise"><strong>Latihan dari materi</strong>${esc(section.exercise)}</div>` : ''}
     <div class="section-complete-line"><button class="mark-section ${done ? 'done' : ''}" data-action="mark-section" data-key="${key}">${done ? '✓ Selesai dibaca' : '+ Tandai selesai dibaca'}</button></div>
   </section>`;
 }
+
+function setActiveSection(index) {
+  const mod = currentModule();
+  if (!mod) return;
+  state.activeSection = Math.max(0, Math.min(mod.sections.length - 1, index));
+  document.querySelectorAll('.section-nav-item').forEach((button, i) => {
+    const active = i === state.activeSection;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-current', active ? 'location' : 'false');
+  });
+  const position = $('#section-nav-position');
+  if (position) position.textContent = `${String(state.activeSection + 1).padStart(2, '0')} / ${String(mod.sections.length).padStart(2, '0')}`;
+}
+
+function updateSectionNavigation() {
+  const sections = [...document.querySelectorAll('.content-section')];
+  if (!sections.length) return;
+  const nav = $('.section-navigator');
+  const line = ($('.topbar')?.offsetHeight || 60) + (nav?.offsetHeight || 65) + 24;
+  let current = sections.findIndex(section => {
+    const box = section.getBoundingClientRect();
+    return box.top <= line && box.bottom > line;
+  });
+  if (current < 0) {
+    const passed = sections.map(section => section.getBoundingClientRect().top <= line);
+    current = passed.lastIndexOf(true);
+    if (current < 0) current = 0;
+  }
+  if (current !== state.activeSection) setActiveSection(current);
+  const start = sections[0].getBoundingClientRect().top + window.scrollY;
+  const end = sections.at(-1).getBoundingClientRect().bottom + window.scrollY;
+  const progress = Math.max(0, Math.min(100, ((window.scrollY + line - start) / Math.max(1, end - start)) * 100));
+  const fill = $('#section-progress-fill');
+  const track = $('.section-progress-track');
+  if (fill) fill.style.width = `${progress}%`;
+  if (track) track.setAttribute('aria-valuenow', String(Math.round(progress)));
+}
+
+function setupSectionNavigation() {
+  if (!document.querySelector('.content-section')) return;
+  updateSectionNavigation();
+  requestAnimationFrame(updateSectionNavigation);
+}
+
+let sectionScrollQueued = false;
+window.addEventListener('scroll', () => {
+  if (sectionScrollQueued) return;
+  sectionScrollQueued = true;
+  requestAnimationFrame(() => {
+    sectionScrollQueued = false;
+    updateSectionNavigation();
+  });
+}, { passive: true });
 
 function renderRecall(mod) {
   return `<section class="recall-section" id="recall"><div class="recall-head"><div><div class="eyebrow">ACTIVE RECALL · PERTEMUAN ${mod.no}</div><h2>Uji pemahaman</h2></div><p>Ingat kembali sebelum membuka jawaban.</p></div>
@@ -196,7 +258,9 @@ function updateNavAndDashboard() {
 
 function openModule(moduleId, section = null) {
   if (!course.some(mod => mod.id === moduleId)) return;
+  if (state.active !== moduleId) state.ui.traceStep = 0;
   state.active = moduleId; state.cheat = false;
+  state.activeSection = section === null || section === '' ? 0 : Number(section);
   renderNav(); setBreadcrumb(); renderModule();
   document.querySelectorAll('.side-home').forEach(el => el.classList.remove('active'));
   closeSidebar();
@@ -215,6 +279,17 @@ function updateVisuals() {
   const mod = currentModule();
   const root = $('#module-visuals');
   if (mod && root) root.innerHTML = `<div class="section-kicker">VISUALISASI & EKSPLORASI</div>${renderVisuals(mod)}`;
+}
+
+function applyReadingSize() {
+  app.style.setProperty('--reading-scale', state.readingSize);
+  const label = $('.reading-size-label');
+  if (label) label.textContent = `${Math.round(state.readingSize * 100)}%`;
+  const down = $('[data-action="reading-size-down"]');
+  const up = $('[data-action="reading-size-up"]');
+  if (down) down.disabled = state.readingSize <= 1;
+  if (up) up.disabled = state.readingSize >= 1.3;
+  requestAnimationFrame(updateSectionNavigation);
 }
 
 function closeSidebar() {
@@ -238,12 +313,34 @@ document.addEventListener('click', event => {
   if (action === 'theme') { state.theme = state.theme === 'light' ? 'dark' : 'light'; localStorage.setItem(themeKey, state.theme); applyTheme(); return; }
   if (action === 'view-full') { state.cheat = false; renderModule(); return; }
   if (action === 'view-cheat') { state.cheat = true; renderModule(); return; }
+  if (action === 'reading-mode') {
+    state.readingMode = !state.readingMode;
+    localStorage.setItem('algo-reading-mode-v1', String(state.readingMode));
+    $('.module-page')?.classList.toggle('reading-mode', state.readingMode);
+    button.classList.toggle('active', state.readingMode);
+    button.setAttribute('aria-pressed', String(state.readingMode));
+    requestAnimationFrame(updateSectionNavigation);
+    return;
+  }
+  if (action === 'reading-size-down' || action === 'reading-size-up') {
+    state.readingSize = Math.min(1.3, Math.max(1, Math.round((state.readingSize + (action === 'reading-size-up' ? 0.1 : -0.1)) * 10) / 10));
+    localStorage.setItem('algo-reading-size-v1', String(state.readingSize));
+    applyReadingSize();
+    return;
+  }
+  if (action === 'jump-section') {
+    const index = Number(button.dataset.index);
+    setActiveSection(index);
+    document.getElementById(`${state.active}-section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
   if (action === 'mark-section') {
     const key = button.dataset.key;
     state.read.has(key) ? state.read.delete(key) : state.read.add(key);
     localStorage.setItem(readKey, JSON.stringify([...state.read]));
     button.classList.toggle('done', state.read.has(key));
     button.innerHTML = state.read.has(key) ? '✓ Selesai dibaca' : '+ Tandai selesai dibaca';
+    $(`.section-nav-item[data-index="${key.split(':')[1]}"]`)?.classList.toggle('done', state.read.has(key));
     updateNavAndDashboard(); return;
   }
   if (action === 'complete-module') {
@@ -283,6 +380,16 @@ document.addEventListener('click', event => {
   if (action === 'branch-type') { state.ui.branchType = button.dataset.value; updateVisuals(); return; }
   if (action === 'member-toggle') { state.ui.member = !state.ui.member; updateVisuals(); return; }
   if (action === 'simulate-branch' || action === 'simulate-grade' || action === 'calculate-operator') { updateVisuals(); return; }
+  if (action === 'trace-reset' || action === 'trace-prev' || action === 'trace-next' || action === 'trace-set') {
+    const mod = currentModule();
+    const steps = mod ? getTraceSteps(mod, state.ui) : [];
+    const current = Math.max(0, Math.min(steps.length - 1, Number(state.ui.traceStep) || 0));
+    if (action === 'trace-reset') state.ui.traceStep = 0;
+    if (action === 'trace-prev') state.ui.traceStep = Math.max(0, current - 1);
+    if (action === 'trace-next') state.ui.traceStep = Math.min(steps.length - 1, current + 1);
+    if (action === 'trace-set') state.ui.traceStep = Math.max(0, Math.min(steps.length - 1, Number(button.dataset.value)));
+    updateVisuals(); return;
+  }
   if (action === 'flashcard') {
     const key = `${state.active}:${button.dataset.index}`;
     state.flash[key] = !state.flash[key];

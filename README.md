@@ -15,5 +15,6 @@ Progress baca, tema, flashcard, dan jawaban kuis tersimpan di localStorage brows
 ## Isi
 
 - 7 modul: konsep algoritma, logika pemrograman, variabel/tipe data/operator, pseudocode/flowchart, IPO, percabangan, dan percabangan ganda/majemuk.
-- Simulasi khas tiap materi: resep algoritmik, computational thinking, variable/operator lab, flowchart interaktif, kalkulator IPO, kondisi if, dan decision tree.
-- Pencarian `Ctrl/Cmd + K`, mode ringkasan ujian, progres tersimpan, flashcards, kuis, dan tema gelap.
+- Diagram berlabel di setiap subbab; tracer langkah demi langkah dengan baris aktif, state variabel, dan output untuk seluruh modul.
+- Navigasi topik yang mengikuti posisi baca, progres gulir, kontrol ukuran teks, dan mode baca fokus.
+- Simulasi khas tiap materi, pencarian `Ctrl/Cmd + K`, ringkasan ujian, progres tersimpan, flashcards, kuis, dan tema gelap.
