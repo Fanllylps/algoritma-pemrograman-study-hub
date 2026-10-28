@@ -8,6 +8,7 @@ const searchInput = document.querySelector('#global-search');
 const searchResults = document.querySelector('#search-results');
 const readKey = 'algo-study-progress-v1';
 const themeKey = 'algo-study-theme-v1';
+const scrollBehavior = () => window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ? 'auto' : 'smooth';
 
 const savedRead = JSON.parse(localStorage.getItem(readKey) || '[]');
 const state = {
@@ -57,12 +58,12 @@ function renderNav() {
     const percent = progressFor(mod);
     return `<button class="module-link ${state.active === mod.id ? 'active' : ''}" data-action="module" data-module="${mod.id}" aria-current="${state.active === mod.id ? 'page' : 'false'}">
       <span class="module-number">${mod.no}</span><span class="module-name"><strong>${esc(mod.title)}</strong><span>${esc(mod.short)}</span></span><span class="module-percent">${percent}%</span>
-      <span class="module-progress"><span style="width:${percent}%"></span></span>
+      <span class="module-progress"><span style="--progress-value:${percent / 100}"></span></span>
     </button>`;
   }).join('');
   const overall = overallProgress();
   $('#overall-progress-label').textContent = `${overall}%`;
-  $('#overall-progress-bar').style.width = `${overall}%`;
+  $('#overall-progress-bar').style.transform = `scaleX(${overall / 100})`;
 }
 
 function setBreadcrumb() {
@@ -87,7 +88,7 @@ function renderDashboard() {
     </section>
     <section aria-labelledby="module-list-title"><div class="module-index-head"><h2 id="module-list-title">Daftar materi</h2><span>01 — 07 / PERTEMUAN</span></div><ol class="dashboard-module-list">${course.map(mod => {
       const percent = progressFor(mod);
-      return `<li class="dashboard-module" role="button" tabindex="0" data-action="module" data-module="${mod.id}"><span class="dash-number">${mod.no}</span><span class="dash-title"><strong>${esc(mod.title)}</strong><span>${mod.sections.length} topik · visualisasi, flashcards & kuis</span></span><span class="dash-outcome">${esc(mod.outcome)}</span><span class="dash-progress">${percent}%<i><span style="width:${percent}%"></span></i></span><span class="dash-arrow">↗</span></li>`;
+      return `<li class="dashboard-module" role="button" tabindex="0" data-action="module" data-module="${mod.id}"><span class="dash-number">${mod.no}</span><span class="dash-title"><strong>${esc(mod.title)}</strong><span>${mod.sections.length} topik · visualisasi, flashcards & kuis</span></span><span class="dash-outcome">${esc(mod.outcome)}</span><span class="dash-progress">${percent}%<i><span style="--progress-value:${percent / 100}"></span></i></span><span class="dash-arrow">↗</span></li>`;
     }).join('')}</ol></section>
     <div class="dashboard-note"><span><strong>Cara memakai ruang belajar</strong> — pilih topik, tandai bagian yang selesai dibaca, coba simulasi, lalu uji ingatan melalui flashcards dan kuis.</span><span>Materi lengkap <strong>${course.reduce((n, mod) => n + mod.sections.length, 0)} subbab</strong></span></div>`;
 }
@@ -165,7 +166,7 @@ function updateSectionNavigation() {
   const progress = Math.max(0, Math.min(100, ((window.scrollY + line - start) / Math.max(1, end - start)) * 100));
   const fill = $('#section-progress-fill');
   const track = $('.section-progress-track');
-  if (fill) fill.style.width = `${progress}%`;
+  if (fill) fill.style.transform = `scaleX(${progress / 100})`;
   if (track) track.setAttribute('aria-valuenow', String(Math.round(progress)));
 }
 
@@ -265,20 +266,25 @@ function openModule(moduleId, section = null) {
   document.querySelectorAll('.side-home').forEach(el => el.classList.remove('active'));
   closeSidebar();
   if (section !== null && section !== '') {
-    requestAnimationFrame(() => document.getElementById(`${moduleId}-section-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  } else window.scrollTo({ top: 0, behavior: 'smooth' });
+    requestAnimationFrame(() => document.getElementById(`${moduleId}-section-${section}`)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }));
+  } else window.scrollTo({ top: 0, behavior: scrollBehavior() });
 }
 
 function openDashboard() {
   state.active = null; state.cheat = false;
   document.querySelectorAll('.side-home').forEach(el => el.classList.add('active'));
-  renderNav(); setBreadcrumb(); renderDashboard(); closeSidebar(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  renderNav(); setBreadcrumb(); renderDashboard(); closeSidebar(); window.scrollTo({ top: 0, behavior: scrollBehavior() });
 }
 
 function updateVisuals() {
   const mod = currentModule();
   const root = $('#module-visuals');
-  if (mod && root) root.innerHTML = `<div class="section-kicker">VISUALISASI & EKSPLORASI</div>${renderVisuals(mod)}`;
+  if (!mod || !root) return;
+  root.innerHTML = `<div class="section-kicker">VISUALISASI & EKSPLORASI</div>${renderVisuals(mod)}`;
+  if (!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches && root.animate) {
+    root.getAnimations().forEach(animation => animation.cancel());
+    root.animate([{ opacity: .76 }, { opacity: 1 }], { duration: 140, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+  }
 }
 
 function applyReadingSize() {
@@ -331,7 +337,7 @@ document.addEventListener('click', event => {
   if (action === 'jump-section') {
     const index = Number(button.dataset.index);
     setActiveSection(index);
-    document.getElementById(`${state.active}-section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById(`${state.active}-section-${index}`)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
     return;
   }
   if (action === 'mark-section') {
