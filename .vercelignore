@@ -1,0 +1,8 @@
+*.pdf
+_extract/
+node_modules/
+.git/
+.gitignore
+.vercelignore
+.env*
+README.md
