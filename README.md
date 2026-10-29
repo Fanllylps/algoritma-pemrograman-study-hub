@@ -17,5 +17,5 @@ Progress baca, tema, flashcard, dan jawaban kuis tersimpan di localStorage brows
 - 7 modul: konsep algoritma, logika pemrograman, variabel/tipe data/operator, pseudocode/flowchart, IPO, percabangan, dan percabangan ganda/majemuk.
 - Diagram berlabel di setiap subbab; tracer langkah demi langkah dengan baris aktif, state variabel, dan output untuk seluruh modul.
 - Navigasi topik yang mengikuti posisi baca, progres gulir, kontrol ukuran teks, dan mode baca fokus.
-- Simulasi khas tiap materi, pencarian `Ctrl/Cmd + K`, ringkasan ujian, progres tersimpan, flashcards, kuis, dan tema gelap.
-- Tab kisi-kisi UTS berisi enam pokok soal, contoh konversi ke Python, tabel kebenaran, dan tautan ke materi terkait.
+- Simulasi khas tiap materi, pencarian full-text berperingkat yang toleran typo ringan dan melompat ke konsep/simulasi, ringkasan ujian, progres tersimpan, flashcards, kuis, dan tema gelap.
+- Tabel kebenaran interaktif AND/OR/NOT dengan pilihan kombinasi dan penjelasan hasil; tab kisi-kisi UTS berisi enam pokok soal, contoh konversi ke Python, dan rujukan langsung ke materi.

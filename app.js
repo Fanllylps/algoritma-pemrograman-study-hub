@@ -248,7 +248,7 @@ const searchSynonyms = {
   variable: ['variabel'], variabel: ['variable'], constant: ['konstanta'], konstanta: ['constant'],
   pseudocode: ['pseudocode', 'kode semu'], flowchart: ['diagram alir', 'flow chart'], 'diagram': ['flowchart'],
   python: ['kode program'], code: ['kode'], kode: ['code'], logika: ['logical', 'boolean'], logical: ['logika'], boolean: ['logika'],
-  tabel: ['truth', 'table', 'kebenaran'], kebenaran: ['truth', 'table'],
+  tabel: ['truth', 'table', 'kebenaran'], kebenaran: ['truth', 'table'], truth: ['table', 'tabel', 'kebenaran'], table: ['truth', 'tabel', 'kebenaran'],
 };
 const normalizeSearch = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('id').replace(/[^a-z0-9]+/g, ' ').trim();
 const searchTerms = query => {
@@ -341,7 +341,7 @@ function buildSearchIndex() {
     (mod.references || []).forEach(reference => items.push({ module: mod.id, section: null, target: `${mod.id}-module-title`, title: reference, text: `Rujukan materi ${mod.title}`, kind: `RUJUKAN · ${mod.no}` }));
     mod.sections.forEach((section, sectionIndex) => {
       items.push({ module: mod.id, section: sectionIndex, target: `${mod.id}-section-title-${sectionIndex}`, title: section.title, text: `${section.intro} ${section.exercise || ''}`, kind: `SUBBAB · SLIDE ${section.slides}` });
-      section.concepts.forEach((concept, conceptIndex) => items.push({ module: mod.id, section: sectionIndex, target: `${mod.id}-concept-${sectionIndex}-${conceptIndex}`, title: concept.name, text: `${concept.definition} ${concept.mechanism} ${concept.example} ${concept.takeaway}`, kind: `KONSEP · ${mod.no}` }));
+      section.concepts.forEach((concept, conceptIndex) => items.push({ module: mod.id, section: sectionIndex, target: mod.id === 'm6' && concept.name.toLowerCase().includes('tabel kebenaran') ? 'algo-interactive-truth-table' : `${mod.id}-concept-${sectionIndex}-${conceptIndex}`, title: concept.name, text: `${concept.definition} ${concept.mechanism} ${concept.example} ${concept.takeaway}`, kind: `KONSEP · ${mod.no}` }));
       if (section.exercise) items.push({ module: mod.id, section: sectionIndex, target: `${mod.id}-exercise-${sectionIndex}`, title: `Latihan: ${section.title}`, text: section.exercise, kind: 'LATIHAN MATERI' });
     });
     mod.flashcards.forEach(([front, back], index) => items.push({ module: mod.id, section: null, target: `search-flashcard-${mod.id}-${index}`, title: front, text: back, kind: `FLASHCARD · ${mod.no}` }));
@@ -369,7 +369,7 @@ function buildSearchIndex() {
     { module: 'm4', section: 3, target: 'algo-visual-pseudocode-flowchart', uiState: { example: 'sequence' }, title: 'Ubah bentuk pseudocode ke flowchart', text: 'Pseudocode ke diagram alir: mulai, input, proses, keputusan, output, selesai.', kind: 'KONVERSI NOTASI · 04' },
     { module: 'm4', section: 3, target: 'algo-visual-pseudocode-flowchart', uiState: { example: 'selection' }, title: 'Flowchart ke pseudocode', text: 'Terjemahkan simbol flowchart, panah, decision Ya/Tidak, dan perulangan menjadi pseudocode.', kind: 'KONVERSI NOTASI · 04' },
     { module: 'm4', section: 0, target: 'm4-concept-0-1', title: 'Pseudocode ke kode program Python', text: 'Implementasi program, coding, Python, input, output, print, input(), float(), int(), assignment dan indentasi.', kind: 'IMPLEMENTASI · 04' },
-    { module: 'm6', section: 0, target: 'm6-concept-0-2', title: 'Tabel kebenaran operator logika', text: 'A, B, A AND B, A OR B, NOT A. AND mensyaratkan semua kondisi benar; OR cukup salah satu benar; NOT membalik nilai A.', kind: 'KISI-KISI UTS · 06' },
+    { module: 'm6', section: 0, target: 'algo-interactive-truth-table', title: 'Truth table (tabel kebenaran) operator logika AND OR NOT', text: 'A, B, A AND B, A OR B, NOT A. Pilih kombinasi pada tabel untuk melihat hasil dan penjelasan; AND perlu semua kondisi benar, OR cukup satu benar, NOT membalik A dan mengabaikan B.', kind: 'SIMULASI INTERAKTIF · 06' },
   );
   return items;
 }
@@ -561,6 +561,10 @@ document.addEventListener('click', event => {
   }
   if (action === 'operator') { state.ui.operator = button.dataset.value; updateVisuals(); return; }
   if (action === 'bool-toggle') { const key = button.dataset.value; state.ui[key] = !state.ui[key]; updateVisuals(); return; }
+  if (action === 'truth-row') {
+    const [a, b] = button.dataset.value.split(',').map(Number);
+    state.ui.boolA = Boolean(a); state.ui.boolB = Boolean(b); updateVisuals(); return;
+  }
   if (action === 'flow-example') { state.ui.example = button.dataset.value; state.ui.flowNode = 0; updateVisuals(); return; }
   if (action === 'flow-node') { state.ui.flowNode = Number(button.dataset.value); updateVisuals(); return; }
   if (action === 'flow-symbol') { state.ui.symbol = button.dataset.value; updateVisuals(); return; }

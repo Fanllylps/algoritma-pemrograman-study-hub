@@ -563,9 +563,33 @@ kbd { border: 1px solid var(--line); border-radius: 3px; padding: 2px 5px; color
 .branch-path { display: flex; flex-direction: column; gap: 7px; min-height: 72px; padding: 10px; border: 1px solid var(--line); opacity: .55; }
 .branch-path span { color: var(--subtle); font: 8px var(--font-mono); }.branch-path strong { font: 9px var(--font-mono); }
 .branch-path.chosen { border-color: var(--emerald); background: var(--emerald-soft); opacity: 1; }.branch-path.muted-path { background: var(--surface-muted); }
-.logic-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 11px 0; }
-.truth-mini { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 11px; border: 1px solid var(--line); }
-.truth-mini > * { min-width: 0; padding: 5px 2px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); font: 8px var(--font-mono); text-align: center; overflow-wrap: anywhere; }.truth-mini [role="columnheader"] { color: var(--subtle); background: var(--surface-muted); }.truth-mini b { color: var(--ink); font-weight: 600; }
+.logic-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 11px 0; }
+.logic-controls > button { min-height: 38px; }
+.logic-context-label { margin-top: 10px; color: var(--subtle); font: 8px var(--font-mono); letter-spacing: .08em; }
+.logic-operator-key { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 12px 0; }
+.logic-key-card { display: flex; min-width: 0; flex-direction: column; gap: 5px; padding: 9px; border: 1px solid var(--line); background: var(--surface); }
+.logic-key-card strong { color: var(--emerald); font: 11px var(--font-mono); }
+.logic-key-card span { color: var(--ink); font-size: 9px; font-weight: 600; line-height: 1.45; }
+.logic-key-card small { color: var(--muted); font-size: 8px; line-height: 1.5; }
+.logic-key-card.selected { border-color: var(--emerald); background: var(--emerald-soft); }
+.truth-table-scroll { max-width: 100%; overflow-x: auto; margin: 11px 0; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+.logic-truth-table { width: 100%; min-width: 400px; border-collapse: collapse; table-layout: fixed; }
+.logic-truth-table caption { padding: 0 0 6px; color: var(--subtle); font-size: 8px; text-align: left; }
+.logic-truth-table th, .logic-truth-table td { min-width: 0; padding: 5px 3px; border: 1px solid var(--line); color: var(--muted); font: 9px var(--font-mono); text-align: center; }
+.logic-truth-table th { background: var(--surface-muted); color: var(--subtle); }
+.logic-truth-table th.logic-column-active, .logic-truth-table td.logic-column-active { background: var(--emerald-soft); color: var(--ink); }
+.logic-truth-table tr.current-combination td { border-top-color: var(--emerald); border-bottom-color: var(--emerald); }
+.logic-truth-table tr.current-combination td:first-child { border-left-color: var(--emerald); }
+.logic-truth-table tr.current-combination td:last-child { border-right-color: var(--emerald); }
+.logic-truth-table td.current-result { background: var(--emerald); color: var(--surface); font-weight: 700; }
+.truth-row-select { width: 100%; min-height: 36px; padding: 5px 2px; border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.truth-row-select:hover, .truth-row-select[aria-pressed="true"] { color: var(--emerald); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.logic-current-result { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px 12px; align-items: center; padding: 11px; border-left: 3px solid var(--emerald); background: var(--emerald-soft); }
+.logic-current-result > div { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.logic-current-result strong { color: var(--ink); font: 17px var(--font-mono); }
+.logic-current-result > code { color: var(--emerald); font: 10px var(--font-mono); }
+.logic-current-result p { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 9px; line-height: 1.55; }
+.logic-current-result p + p { margin-top: -3px; }
 .member-toggle { height: 35px; padding: 7px 9px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; font-size: 9px; }.member-toggle.active { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
 .branch-tree { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; }
 .tree-step { display: grid; grid-template-columns: 24px 1fr; align-items: center; gap: 8px; padding: 8px; border: 1px solid var(--line); color: var(--muted); font: 9px var(--font-mono); }

@@ -42,7 +42,7 @@ const inlineMaps = {
     { title: 'Alur problem-based learning', layout: 'flow', legend: 'Kasus KampusMart bergerak dari pemahaman masalah ke evaluasi solusi.', nodes: [['Orientasi', 'Pahami kebutuhan', 'input'], ['Penyelidikan', 'Rumus dan data uji', 'process'], ['Kembangkan', 'Pseudocode / program', 'decision'], ['Evaluasi', 'Periksa hasil', 'output']] },
   ],
   m6: [
-    { title: 'Kondisi menghasilkan True atau False', layout: 'branches', legend: 'Operator relasional/logika menghasilkan nilai boolean untuk percabangan.', decision: 'Apakah semua kondisi yang dibutuhkan terpenuhi?', branches: [['TRUE', 'Jalankan aksi', 'Masuk ke blok if', 'yes'], ['FALSE', 'Lewati blok', 'If tunggal tidak punya jalur else', 'no']] },
+    { title: 'Bedakan AND, OR, dan NOT', layout: 'cards', legend: 'AND menguji semua syarat, OR menguji kecukupan satu syarat, sedangkan NOT membalik satu nilai boolean.', nodes: [['AND', 'True hanya jika A dan B keduanya True', 'process'], ['OR', 'True jika A atau B minimal satu True', 'decision'], ['NOT A', 'Membalik A; nilai B tidak digunakan', 'output']] },
     { title: 'If tunggal', layout: 'branches', legend: 'Satu kondisi, satu aksi; kondisi False melewati aksi.', decision: 'nilai ≥ 60?', branches: [['YA · TRUE', 'Tampilkan “Lulus”', 'Aksi di dalam if dijalankan', 'yes'], ['TIDAK · FALSE', 'Lewati blok if', 'Tidak ada aksi alternatif', 'no']] },
     { title: 'Tiga pemeriksaan sintaks', layout: 'cards', legend: 'Operator, titik dua, dan indentasi menentukan makna blok if.', nodes: [['Perbandingan', '== bukan =', 'decision'], ['Titik dua', 'if kondisi:', 'input'], ['Indentasi', 'Aksi menjorok', 'process']] },
   ],
@@ -305,6 +305,20 @@ function m6(mod, ui) {
   const op = ui.boolOperator || 'and';
   const logical = op === 'and' ? Boolean(ui.boolA) && Boolean(ui.boolB) : op === 'or' ? Boolean(ui.boolA) || Boolean(ui.boolB) : !Boolean(ui.boolA);
   const logicExpression = op === 'not' ? `not ${ui.boolA ? 'True' : 'False'}` : `${ui.boolA ? 'True' : 'False'} ${op} ${ui.boolB ? 'True' : 'False'}`;
+  const combinations = [[true, true], [true, false], [false, true], [false, false]];
+  const operatorNames = { and: 'AND', or: 'OR', not: 'NOT A' };
+  const operatorButton = key => `<button type="button" class="pill-button ${op === key ? 'active' : ''}" data-action="bool-operator" data-value="${key}" aria-pressed="${op === key}">${operatorNames[key]}</button>`;
+  const operatorRules = {
+    and: 'Semua kondisi wajib True. Jika ada satu saja False, hasilnya False.',
+    or: 'Cukup satu kondisi True. Hasilnya False hanya jika A dan B sama-sama False.',
+    not: 'NOT membalik nilai A: True menjadi False, dan False menjadi True. Nilai B diabaikan.',
+  };
+  const resultReason = op === 'and'
+    ? (ui.boolA && ui.boolB ? 'A dan B sama-sama True, jadi semua syarat terpenuhi.' : 'Setidaknya satu dari A atau B False, jadi syarat AND belum semuanya terpenuhi.')
+    : op === 'or'
+      ? (ui.boolA || ui.boolB ? 'A atau B (atau keduanya) True, jadi setidaknya satu syarat terpenuhi.' : 'A dan B sama-sama False, jadi tidak ada syarat OR yang terpenuhi.')
+      : `A bernilai ${ui.boolA ? 'True' : 'False'}, maka NOT A menjadi ${logical ? 'True' : 'False'}. B tidak ikut dihitung.`;
+  const tableCell = (value, selected, extra = '') => `<td class="${extra} ${selected ? 'current-result' : ''}">${value ? 'True' : 'False'}</td>`;
   return `<div class="visual-grid accent-emerald">
     <section class="visual-panel">${head('If-condition playground', 'Ubah nilai dan batas, lalu evaluasi kondisi. Perhatikan aksi pada cabang True dan False.')}
       <div class="sim-fields">${field('Nilai', 'ifValue', ui.ifValue)}${field('Batas lulus', 'ifThreshold', ui.ifThreshold)}</div>
@@ -313,12 +327,17 @@ function m6(mod, ui) {
       <div class="branch-result"><div class="branch-path ${passed ? 'chosen' : ''}"><span>TRUE</span><strong>${passed ? 'print("Lulus")' : 'blok aksi dijalankan jika True'}</strong></div><div class="branch-path ${!passed ? 'chosen muted-path' : ''}"><span>FALSE</span><strong>${!passed ? 'blok dilewati' : 'tidak ada jalur else'}</strong></div></div>
       ${detail('Hasil evaluasi', `${value} >= ${threshold} bernilai ${passed ? 'True' : 'False'}. ${passed ? 'Aksi di dalam if dijalankan.' : 'Blok if tunggal dilewati.'}`)}
     </section>
-    <section class="visual-panel">${head('Kondisi logika', 'Pilih jenis kondisi, lalu klik A/B untuk mengubah nilai boolean.')}
-       <div class="pill-row">${mod.conditions.map(item => pill(item.name, 'condition', item.id, item.id === condition.id, `algo-condition-${item.id}`)).join('')}</div>
-      <div class="condition-expression">${esc(condition.condition)}</div>
-      <div class="logic-controls">${pill('AND', 'bool-operator', 'and', op === 'and')}${pill('OR', 'bool-operator', 'or', op === 'or')}${pill('NOT A', 'bool-operator', 'not', op === 'not')}<button class="logic-input ${ui.boolA ? 'true' : ''}" data-action="bool-toggle" data-value="boolA">A · ${ui.boolA ? 'True' : 'False'}</button>${op !== 'not' ? `<button class="logic-input ${ui.boolB ? 'true' : ''}" data-action="bool-toggle" data-value="boolB">B · ${ui.boolB ? 'True' : 'False'}</button>` : ''}</div>
-      <div class="operator-result"><span class="visual-label">HASIL</span><strong>${logical ? 'True' : 'False'}</strong><code>${logicExpression}</code></div>
-       <div class="truth-mini" role="table" aria-label="Tabel kebenaran AND, OR, dan NOT A"><span role="columnheader">A</span><span role="columnheader">B</span><span role="columnheader">A AND B</span><span role="columnheader">A OR B</span><span role="columnheader">NOT A</span><span role="cell">True</span><span role="cell">True</span><b role="cell">True</b><b role="cell">True</b><b role="cell">False</b><span role="cell">True</span><span role="cell">False</span><b role="cell">False</b><b role="cell">True</b><b role="cell">False</b><span role="cell">False</span><span role="cell">True</span><b role="cell">False</b><b role="cell">True</b><b role="cell">True</b><span role="cell">False</span><span role="cell">False</span><b role="cell">False</b><b role="cell">False</b><b role="cell">True</b></div>
+    <section id="algo-interactive-truth-table" class="visual-panel search-result-target" tabindex="-1">${head('Kondisi logika · AND / OR / NOT', 'Pilih contoh kondisi, atur nilai A/B, lalu lihat hasil dan alasan operator pada tabel.')}
+       <div class="logic-context-label">CONTOH EKSPRESI KONDISI</div><div class="pill-row">${mod.conditions.map(item => pill(item.name, 'condition', item.id, item.id === condition.id, `algo-condition-${item.id}`)).join('')}</div>
+       <div class="condition-expression">${esc(condition.condition)}</div>
+       <div class="logic-controls">${operatorButton('and')}${operatorButton('or')}${operatorButton('not')}<button class="logic-input ${ui.boolA ? 'true' : ''}" data-action="bool-toggle" data-value="boolA" aria-pressed="${Boolean(ui.boolA)}">A · ${ui.boolA ? 'True' : 'False'}</button><button class="logic-input ${ui.boolB ? 'true' : ''}" data-action="bool-toggle" data-value="boolB" aria-pressed="${Boolean(ui.boolB)}">B · ${ui.boolB ? 'True' : 'False'}${op === 'not' ? ' · diabaikan oleh NOT' : ''}</button></div>
+       <div class="logic-operator-key" aria-label="Perbedaan operator logika"><div class="logic-key-card ${op === 'and' ? 'selected' : ''}"><strong>AND</strong><span>Semua kondisi harus True.</span><small>Satu False saja membuat hasil False.</small></div><div class="logic-key-card ${op === 'or' ? 'selected' : ''}"><strong>OR</strong><span>Salah satu kondisi True sudah cukup.</span><small>Hasil False hanya jika keduanya False.</small></div><div class="logic-key-card ${op === 'not' ? 'selected' : ''}"><strong>NOT</strong><span>Membalik nilai satu kondisi.</span><small>Tidak memerlukan nilai B.</small></div></div>
+       <div class="truth-table-scroll"><table class="logic-truth-table"><caption>Truth table · tekan nilai A pada baris untuk memilih kombinasi</caption><thead><tr><th scope="col">A</th><th scope="col">B</th><th class="${op === 'and' ? 'logic-column-active' : ''}" scope="col">A AND B</th><th class="${op === 'or' ? 'logic-column-active' : ''}" scope="col">A OR B</th><th class="${op === 'not' ? 'logic-column-active' : ''}" scope="col">NOT A</th></tr></thead><tbody>${combinations.map(([a, b]) => {
+         const selectedRow = Boolean(ui.boolA) === a && Boolean(ui.boolB) === b;
+         const andResult = a && b, orResult = a || b, notResult = !a;
+         return `<tr class="${selectedRow ? 'current-combination' : ''}" aria-selected="${selectedRow}"><td><button class="truth-row-select" type="button" data-action="truth-row" data-value="${Number(a)},${Number(b)}" aria-label="Pilih kombinasi A ${a ? 'True' : 'False'} dan B ${b ? 'True' : 'False'}" aria-pressed="${selectedRow}">${a ? 'True' : 'False'}</button></td><td>${b ? 'True' : 'False'}</td>${tableCell(andResult, selectedRow && op === 'and', op === 'and' ? 'logic-column-active' : '')}${tableCell(orResult, selectedRow && op === 'or', op === 'or' ? 'logic-column-active' : '')}${tableCell(notResult, selectedRow && op === 'not', op === 'not' ? 'logic-column-active' : '')}</tr>`;
+       }).join('')}</tbody></table></div>
+       <div class="logic-current-result" aria-live="polite"><div><span class="visual-label">HASIL UNTUK KOMBINASI INI</span><strong>${esc(operatorNames[op])} → ${logical ? 'True' : 'False'}</strong></div><code>${esc(logicExpression)}</code><p><b>Aturannya:</b> ${esc(operatorRules[op])}</p><p>${esc(resultReason)}</p></div>
     </section>
   </div>`;
 }

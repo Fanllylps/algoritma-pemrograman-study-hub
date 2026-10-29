@@ -40,14 +40,14 @@ export const utsGuide = [
   {
     number: 6, group: 'Operator logika',
     question: 'Lengkapi tabel kebenaran operator logika AND, OR, dan NOT A.',
-    answer: '`and` bernilai True hanya jika A dan B sama-sama True. `or` bernilai True jika setidaknya salah satu True. `not A` membalik nilai A dan tidak bergantung pada B.',
+    answer: 'A dan B mewakili dua kondisi yang masing-masing bernilai True atau False. `and` mensyaratkan keduanya True; `or` cukup salah satunya True; `not A` membalik A dan mengabaikan B. Pilih baris pada simulasi untuk mengganti kombinasi dan melihat alasan hasilnya.',
     truthTable: [
       ['True', 'True', 'True', 'True', 'False'],
       ['True', 'False', 'False', 'True', 'False'],
       ['False', 'True', 'False', 'True', 'True'],
       ['False', 'False', 'False', 'False', 'True'],
     ],
-    points: ['AND: semua syarat wajib terpenuhi.', 'OR: salah satu syarat benar sudah cukup.', 'NOT: negasi atau pembalik satu kondisi. Dalam Python, tulis operator sebagai `and`, `or`, dan `not`.'],
-    module: 'm6', section: 0, target: 'm6-concept-0-2', reference: 'Pertemuan 6 · Tabel kebenaran operator logika',
+    points: ['AND (`and`) hanya True pada kombinasi True–True.', 'OR (`or`) hanya False pada kombinasi False–False.', 'NOT (`not`) membalik A; mengganti B tidak mengubah hasil NOT A.'],
+    module: 'm6', section: 0, target: 'algo-interactive-truth-table', reference: 'Coba tabel interaktif AND · OR · NOT',
   },
 ];
