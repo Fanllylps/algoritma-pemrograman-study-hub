@@ -1,6 +1,6 @@
 # Ruang Belajar — Algoritma dan Pemrograman
 
-Ruang belajar interaktif tujuh pertemuan berdasarkan materi PDF yang ada di direktori ini. Data pelajaran berada di `courseData.js`, antarmuka di `app.js`/`visualizations.js`, dan gaya editorial di `styles.css`.
+Ruang belajar interaktif tujuh pertemuan berdasarkan materi PDF yang ada di direktori ini. Data pelajaran berada di `courseData.js`, jawaban kisi-kisi UTS berada di `utsGuide.js`, antarmuka di `app.js`/`visualizations.js`, dan gaya editorial di `styles.css`.
 
 ## Menjalankan lokal
 
@@ -18,3 +18,4 @@ Progress baca, tema, flashcard, dan jawaban kuis tersimpan di localStorage brows
 - Diagram berlabel di setiap subbab; tracer langkah demi langkah dengan baris aktif, state variabel, dan output untuk seluruh modul.
 - Navigasi topik yang mengikuti posisi baca, progres gulir, kontrol ukuran teks, dan mode baca fokus.
 - Simulasi khas tiap materi, pencarian `Ctrl/Cmd + K`, ringkasan ujian, progres tersimpan, flashcards, kuis, dan tema gelap.
+- Tab kisi-kisi UTS berisi enam pokok soal, contoh konversi ke Python, tabel kebenaran, dan tautan ke materi terkait.

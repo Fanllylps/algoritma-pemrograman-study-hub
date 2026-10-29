@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f8f7f4" />
-  <meta name="description" content="Ruang belajar interaktif Algoritma dan Pemrograman — tujuh pertemuan materi, simulasi, dan kuis." />
+  <meta name="description" content="Ruang belajar interaktif Algoritma dan Pemrograman — tujuh pertemuan, simulasi, kuis, dan kisi-kisi UTS dengan jawaban." />
   <title>Ruang Belajar — Algoritma dan Pemrograman</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +19,8 @@
         <div class="brand-copy"><strong>RUANG BELAJAR</strong><span>ALGORITMA & PEMROGRAMAN</span></div>
         <button class="icon-button sidebar-close" data-action="close-sidebar" aria-label="Tutup navigasi">×</button>
       </div>
-      <button class="side-home" data-action="dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
+      <button class="side-home" data-action="dashboard" data-nav-page="dashboard" aria-current="page"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
+      <button class="side-home side-guide" data-action="guide" data-nav-page="guide" aria-current="false"><span class="nav-icon">✳</span><span>Kisi-kisi UTS</span><span class="guide-nav-count">06</span></button>
       <div class="side-section-label"><span>DAFTAR MATERI</span><span>7 MODUL</span></div>
       <nav class="module-nav" id="module-nav"></nav>
       <div class="sidebar-bottom">
@@ -47,8 +48,9 @@
   <section class="search-overlay" id="search-overlay" aria-hidden="true" aria-label="Pencarian materi">
     <div class="search-backdrop" data-action="close-search"></div>
     <div class="search-dialog" role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <h2 class="sr-only" id="search-title">Cari materi</h2>
       <div class="search-input-row"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"></circle><path d="m16 16 4.2 4.2"></path></svg><input id="global-search" type="search" placeholder="Cari konsep, istilah, atau operator…" autocomplete="off" /><kbd>ESC</kbd></div>
-      <div class="search-results" id="search-results"><p class="search-hint" id="search-title">Ketik untuk mencari di seluruh materi.</p></div>
+      <div class="search-results" id="search-results"><p class="search-hint">Ketik untuk mencari di seluruh materi.</p></div>
       <div class="search-foot"><span>Hasil mencakup istilah, definisi, dan subbab</span><span>ENTER untuk membuka</span></div>
     </div>
   </section>

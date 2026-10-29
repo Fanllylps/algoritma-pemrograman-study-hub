@@ -1,0 +1,53 @@
+export const utsGuide = [
+  {
+    number: 1, group: 'Dasar algoritma',
+    question: 'Apa konsep dan definisi algoritma?',
+    answer: 'Algoritma adalah urutan langkah yang logis, sistematis, terstruktur, dan berhingga untuk menyelesaikan masalah atau mencapai tujuan. Algoritma menjelaskan logika solusi, bukan bahasa pemrograman yang dipakai. Karena itu, solusi yang sama dapat ditulis dalam bahasa sehari-hari, pseudocode, flowchart, lalu diterapkan sebagai program.',
+    points: ['Langkah harus jelas dan tidak ambigu (definiteness).', 'Proses harus selesai dalam jumlah langkah terbatas (finiteness).', 'Setiap langkah dapat dilaksanakan (effectiveness); algoritma juga memiliki input bila diperlukan dan menghasilkan output.'],
+    module: 'm1', section: 0, target: 'm1-concept-0-0', reference: 'Pertemuan 1 · Definisi algoritma',
+  },
+  {
+    number: 2, group: 'Variabel & konstanta',
+    question: 'Jelaskan variabel dan konstanta.',
+    answer: 'Variabel adalah nama untuk nilai yang disimpan saat program berjalan dan nilainya dapat berubah, misalnya `umur = 20` lalu `umur = 21`. Konstanta adalah nilai yang dimaksudkan tetap selama program, misalnya `PI = 3.14159` atau `PPN = 0.11`. Di Python, huruf kapital seperti `PI` merupakan konvensi penamaan; Python tidak mengunci nilai itu sebagai konstanta secara otomatis.',
+    points: ['Variabel: identifier + nilai yang dapat diperbarui.', 'Konstanta: nilai yang menurut rancangan tidak berubah; gunakan nama kapital agar maksudnya jelas.', 'Tipe data membantu menentukan jenis nilai, misalnya integer, float, string, dan boolean.'],
+    module: 'm3', section: 0, target: 'm3-concept-0-0', reference: 'Pertemuan 3 · Variabel dan konstanta',
+  },
+  {
+    number: 3, group: 'Pseudocode ↔ flowchart',
+    question: 'Bagaimana mengubah pseudocode menjadi flowchart?',
+    answer: 'Baca setiap instruksi pseudocode, tentukan fungsinya, lalu wakili dengan simbol flowchart yang sesuai dan hubungkan dengan panah dari Mulai sampai Selesai. Contoh menghitung luas persegi panjang:',
+    code: 'PSEUDOCODE\nALGORITMA LuasPersegiPanjang\nDEKLARASI p, l, luas: real\nDESKRIPSI\n  baca(p)\n  baca(l)\n  luas <- p * l\n  tulis(luas)',
+    points: ['Mulai/Selesai → terminator; baca/tulis → input/output; hitung atau assignment → process.', 'Urutan diagram: Mulai → input p dan l → proses luas = p × l → output luas → Selesai.', 'Kalau ada `JIKA`, gunakan simbol decision (belah ketupat) dengan cabang Ya/Tidak; jika ada pengulangan, gambar alur kembali ke kondisi.'],
+    module: 'm4', section: 3, target: 'algo-visual-pseudocode-flowchart', uiState: { example: 'sequence' }, reference: 'Pertemuan 4 · Pseudocode → flowchart',
+  },
+  {
+    number: 4, group: 'Pseudocode ↔ flowchart',
+    question: 'Bagaimana mengubah flowchart menjadi pseudocode?',
+    answer: 'Telusuri flowchart dari Mulai mengikuti arah panah. Tulis setiap simbol sebagai instruksi: input/output menjadi `baca`/`tulis`, process menjadi perhitungan atau assignment, dan decision menjadi `JIKA` dengan cabang kondisi yang sesuai. Contoh alur menentukan bilangan genap atau ganjil:',
+    code: 'MULAI\nbaca(n)\nJIKA n mod 2 = 0 MAKA\n  tulis("Genap")\nSELAIN ITU\n  tulis("Ganjil")\nAKHIR JIKA\nSELESAI',
+    points: ['Decision pada flowchart diterjemahkan menjadi kondisi `JIKA`; label Ya/Tidak menentukan aksi pada tiap cabang.', 'Satu urutan panah menjadi langkah berurutan; panah balik menjadi struktur perulangan.', 'Jaga urutan, kondisi, dan keluaran agar logika pseudocode sama dengan diagram.'],
+    module: 'm4', section: 3, target: 'algo-visual-pseudocode-flowchart', uiState: { example: 'selection' }, reference: 'Pertemuan 4 · Flowchart dan pseudocode',
+  },
+  {
+    number: 5, group: 'Implementasi Python',
+    question: 'Bagaimana mengubah pseudocode menjadi kode program Python?',
+    answer: 'Pertahankan urutan dan logika pseudocode, lalu ganti notasi umum dengan sintaks Python. `baca` menjadi `input`, `tulis` menjadi `print`, assignment memakai `=`, dan blok kondisi menggunakan `if`, titik dua, serta indentasi. Contoh implementasi pseudocode luas persegi panjang:',
+    code: 'p = float(input("Panjang: "))\nl = float(input("Lebar: "))\nluas = p * l\nprint("Luas:", luas)',
+    points: ['Pseudocode menjelaskan apa yang dikerjakan; Python menentukan sintaks yang bisa dijalankan komputer.', 'Pilih tipe input yang sesuai—`input()` menghasilkan teks, sehingga angka perlu dikonversi, misalnya dengan `float()` atau `int()`.', 'Jalankan kode dengan beberapa data uji dan bandingkan output dengan hasil yang diharapkan.'],
+    module: 'm4', section: 0, target: 'm4-concept-0-1', reference: 'Pertemuan 4 · Pseudocode dan implementasi program',
+  },
+  {
+    number: 6, group: 'Operator logika',
+    question: 'Lengkapi tabel kebenaran operator logika AND, OR, dan NOT A.',
+    answer: '`and` bernilai True hanya jika A dan B sama-sama True. `or` bernilai True jika setidaknya salah satu True. `not A` membalik nilai A dan tidak bergantung pada B.',
+    truthTable: [
+      ['True', 'True', 'True', 'True', 'False'],
+      ['True', 'False', 'False', 'True', 'False'],
+      ['False', 'True', 'False', 'True', 'True'],
+      ['False', 'False', 'False', 'False', 'True'],
+    ],
+    points: ['AND: semua syarat wajib terpenuhi.', 'OR: salah satu syarat benar sudah cukup.', 'NOT: negasi atau pembalik satu kondisi. Dalam Python, tulis operator sebagai `and`, `or`, dan `not`.'],
+    module: 'm6', section: 0, target: 'm6-concept-0-2', reference: 'Pertemuan 6 · Tabel kebenaran operator logika',
+  },
+];
